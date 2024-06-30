@@ -12,7 +12,7 @@ import zipfile
 st.set_page_config(page_title='ML model builder', page_icon='🏗️')
 st.markdown(
     """
-    <div class="box" style="text-align:center; font-size:2em; font-weight:bold;">
+    <div class="box" style="text-align:center; font-size:2em; font-weight:bold; background: #ffffff; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
         Prediksi Nilai SPPBK menggunakan Machine Learning
     </div>
     """,
