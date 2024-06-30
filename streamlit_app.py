@@ -13,7 +13,7 @@ st.set_page_config(page_title='ML model builder', page_icon='🏗️')
 st.title('Prediksi Nilai SPPBK menggunakan Machine Learning')
 
 # Adding background image
-background_url = "https://www.istockphoto.com/id/foto/palm-oil-and-oil-palm-gm2124093009-567664346?utm_campaign=srp_photos_top&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fpalm-oil&utm_medium=affiliate&utm_source=unsplash&utm_term=palm+oil%3A%3A%3A"  # Replace with your Unsplash image URL
+background_url = "https://media.istockphoto.com/id/2124093009/id/foto/palm-oil-and-oil-palm.jpg?s=2048x2048&w=is&k=20&c=sY6mhX8YvdSO7Hwe-kd0OBGL7UiyzIkUyh3z6YXTKXQ="  # Replace with your Unsplash image URL
 st.markdown(
     f"""
     <style>
