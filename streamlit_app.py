@@ -10,7 +10,14 @@ import zipfile
 
 # Page title
 st.set_page_config(page_title='ML model builder', page_icon='🏗️')
-st.title('Prediksi Nilai SPPBK menggunakan Machine Learning')
+st.markdown(
+    """
+    <div class="box" style="text-align:center; font-size:2em; font-weight:bold;">
+        Prediksi Nilai SPPBK menggunakan Machine Learning
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 with st.expander('About this app'):
   st.markdown('**What can this app do?**')
