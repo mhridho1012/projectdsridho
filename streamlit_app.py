@@ -19,6 +19,20 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+# Adding background image
+background_url = "https://media.istockphoto.com/id/2124093009/id/foto/palm-oil-and-oil-palm.jpg?s=2048x2048&w=is&k=20&c=sY6mhX8YvdSO7Hwe-kd0OBGL7UiyzIkUyh3z6YXTKXQ="  # Replace with your Unsplash image URL
+st.markdown(
+    f"""
+    <style>
+    .stApp {{
+        background-image: url("{background_url}");
+        background-size: cover;
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 with st.expander('About this app'):
   st.markdown('**What can this app do?**')
   st.info('This app allow users to build a machine learning (ML) model in an end-to-end workflow. Particularly, this encompasses data upload, data pre-processing, ML model building and post-model analysis.')
