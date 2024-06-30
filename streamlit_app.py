@@ -21,34 +21,24 @@ st.markdown(
         background-image: url("{background_url}");
         background-size: cover;
     }}
-    .box {{
-        background: rgba(255, 255, 255, 0.8);
-        padding: 15px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-    }}
     </style>
     """,
     unsafe_allow_html=True
 )
 
-# Function to create a box with content
-def create_box(content):
-    return st.markdown(f'<div class="box">{content}</div>', unsafe_allow_html=True)
-
 with st.expander('About this app'):
-    create_box('**What can this app do?**')
+    st.markdown('**What can this app do?**')
     st.info('This app allows users to build a machine learning (ML) model in an end-to-end workflow. Particularly, this encompasses data upload, data pre-processing, ML model building and post-model analysis.')
 
-    create_box('**How to use the app?**')
+    st.markdown('**How to use the app?**')
     st.warning('To engage with the app, go to the sidebar and 1. Select a data set and 2. Adjust the model parameters by adjusting the various slider widgets. As a result, this would initiate the ML model building process, display the model results as well as allowing users to download the generated models and accompanying data.')
 
-    create_box('**Under the hood**')
+    st.markdown('**Under the hood**')
     st.markdown('Data sets:')
     st.code('''- Drug solubility data set
     ''', language='markdown')
 
-    create_box('Libraries used:')
+    st.markdown('Libraries used:')
     st.code('''- Pandas for data wrangling
 - Scikit-learn for building a machine learning model
 - Altair for chart creation
@@ -60,7 +50,7 @@ with st.sidebar:
     # Load data
     st.header('1.1. Input data')
 
-    create_box('**1. Use custom data**')
+    st.markdown('**1. Use custom data**')
     uploaded_file = st.file_uploader("Upload a CSV file", type=["csv"])
     if uploaded_file is not None:
         df = pd.read_csv(uploaded_file, index_col=False)
@@ -78,7 +68,8 @@ with st.sidebar:
         mime='text/csv',
     )
 
-    create_box('**1.2. Use example data**')
+    # Select example data
+    st.markdown('**1.2. Use example data**')
     example_data = st.toggle('Load example data')
     if example_data:
         df = pd.read_csv('https://raw.githubusercontent.com/dataprofessor/data/master/delaney_solubility_with_descriptors.csv')
@@ -151,6 +142,8 @@ if uploaded_file or example_data:
         st.write("Displaying performance metrics ...")
         time.sleep(sleep_time)
         parameter_criterion_string = ' '.join([x.capitalize() for x in parameter_criterion.split('_')])
+        # if 'Mse' in parameter_criterion_string:
+        #    parameter_criterion_string = parameter_criterion_string.replace('Mse', 'MSE')
         rf_results = pd.DataFrame(['Random forest', train_mse, train_r2, test_mse, test_r2]).transpose()
         rf_results.columns = ['Method', f'Training {parameter_criterion_string}', 'Training R2', f'Test {parameter_criterion_string}', 'Test R2']
         # Convert objects to numerics
@@ -170,91 +163,99 @@ if uploaded_file or example_data:
     col[3].metric(label="No. of Test samples", value=X_test.shape[0], delta="")
 
     with st.expander('Initial dataset', expanded=True):
-        create_box(st.dataframe(df, height=210, use_container_width=True))
+        st.dataframe(df, height=210, use_container_width=True)
     with st.expander('Train split', expanded=False):
         train_col = st.columns((3, 1))
         with train_col[0]:
             st.markdown('**X**')
-            create_box(st.dataframe(X_train, height=210, hide_index=True, use_container_width=True))
+            st.dataframe(X_train, height=210, hide_index=True, use_container_width=True)
         with train_col[1]:
             st.markdown('**y**')
-            create_box(st.dataframe(y_train, height=210, hide_index=True, use_container_width=True))
+            st.dataframe(y_train, height=210, hide_index=True, use_container_width=True)
     with st.expander('Test split', expanded=False):
         test_col = st.columns((3, 1))
         with test_col[0]:
             st.markdown('**X**')
-            create_box(st.dataframe(X_test, height=210, hide_index=True, use_container_width=True))
+            st.dataframe(X_test, height=210, hide_index=True, use_container_width=True)
         with test_col[1]:
             st.markdown('**y**')
-            create_box(st.dataframe(y_test, height=210, hide_index=True, use_container_width=True))
+            st.dataframe(y_test, height=210, hide_index=True, use_container_width=True)
 
-    st.header('Results', divider='rainbow')
-    st.subheader('Performance metrics')
-    st.dataframe(rf_results, use_container_width=True)
+    # Zip dataset files
+    df.to_csv('dataset.csv', index=False)
+    X_train.to_csv('X_train.csv', index=False)
+    y_train.to_csv('y_train.csv', index=False)
+    X_test.to_csv('X_test.csv', index=False)
+    y_test.to_csv('y_test.csv', index=False)
 
-    st.subheader('Prediction plots')
-    with st.expander('See plots'):
-        fig_col = st.columns(2)
-        with fig_col[0]:
-            st.markdown('**Train set**')
-            rf_train = pd.DataFrame({'Actual': y_train, 'Predicted': y_train_pred})
-            rf_train['Residual'] = rf_train['Actual'] - rf_train['Predicted']
-            rf_train = rf_train.reset_index(drop=True).reset_index()
-            fig = alt.Chart(rf_train).transform_fold(
-                fold=['Actual', 'Predicted'],
-                as_=['category', 'value']
-            ).mark_line().encode(
-                x='index:Q',
-                y='value:Q',
-                color='category:N'
-            ).properties(
-                height=200
-            ).interactive()
-            st.altair_chart(fig, use_container_width=True)
-            st.markdown('**Test set**')
-            rf_test = pd.DataFrame({'Actual': y_test, 'Predicted': y_test_pred})
-            rf_test['Residual'] = rf_test['Actual'] - rf_test['Predicted']
-            rf_test = rf_test.reset_index(drop=True).reset_index()
-            fig = alt.Chart(rf_test).transform_fold(
-                fold=['Actual', 'Predicted'],
-                as_=['category', 'value']
-            ).mark_line().encode(
-                x='index:Q',
-                y='value:Q',
-                color='category:N'
-            ).properties(
-                height=200
-            ).interactive()
-            st.altair_chart(fig, use_container_width=True)
-        with fig_col[1]:
-            st.markdown('**Residuals**')
-            fig = alt.Chart(rf_train).transform_density(
-                density='Residual',
-                groupby=['category'],
-                as_=['Residual', 'density']
-            ).mark_area(opacity=0.3).encode(
-                x='Residual:Q',
-                y='density:Q',
-                color='category:N'
-            ).properties(
-                height=200
-            ).interactive()
-            st.altair_chart(fig, use_container_width=True)
-            create_box(st.write(rf_train.describe()))
+    list_files = ['dataset.csv', 'X_train.csv', 'y_train.csv', 'X_test.csv', 'y_test.csv']
+    with zipfile.ZipFile('dataset.zip', 'w') as zipF:
+        for file in list_files:
+            zipF.write(file, compress_type=zipfile.ZIP_DEFLATED)
 
-    # Download model and data
-    st.header('Export', divider='rainbow')
-    create_box('**Dataframes and model can be downloaded in a zip file**')
-    dfs = {'df': df, 'X_train': X_train, 'X_test': X_test, 'y_train': y_train, 'y_test': y_test, 'rf_results': rf_results}
-    dfs_path = '/mnt/data/dfs.zip'
-    with zipfile.ZipFile(dfs_path, 'w') as zf:
-        for name, df in dfs.items():
-            df.to_csv(f'{name}.csv', index=False)
-            zf.write(f'{name}.csv')
-    st.download_button(
-        label="Download ZIP",
-        data=dfs_path,
-        file_name='dfs.zip',
-    )
+    with open('dataset.zip', 'rb') as datazip:
+        btn = st.download_button(
+            label='Download ZIP',
+            data=datazip,
+            file_name="dataset.zip",
+            mime="application/octet-stream"
+        )
+
+    # Display model parameters
+    st.header('Model parameters', divider='rainbow')
+    parameters_col = st.columns(3)
+    parameters_col[0].metric(label="Data split ratio (% for Training Set)", value=parameter_split_size, delta="")
+    parameters_col[1].metric(label="Number of estimators (n_estimators)", value=parameter_n_estimators, delta="")
+    parameters_col[2].metric(label="Max features (max_features)", value=parameter_max_features_metric, delta="")
+
+    # Display feature importance plot
+    importances = rf.feature_importances_
+    feature_names = list(X.columns)
+    forest_importances = pd.Series(importances, index=feature_names)
+    df_importance = forest_importances.reset_index().rename(columns={'index': 'feature', 0: 'value'})
+
+    bars = alt.Chart(df_importance).mark_bar(size=40).encode(
+        x='value:Q',
+        y=alt.Y('feature:N', sort='-x')
+    ).properties(height=250)
+
+    performance_col = st.columns((2, 0.2, 3))
+    with performance_col[0]:
+        st.header('Model performance', divider='rainbow')
+        st.dataframe(rf_results.T.reset_index().rename(columns={'index': 'Parameter', 0: 'Value'}))
+    with performance_col[2]:
+        st.header('Feature importance', divider='rainbow')
+        st.altair_chart(bars, theme='streamlit', use_container_width=True)
+
+    # Prediction results
+    st.header('Prediction results', divider='rainbow')
+    s_y_train = pd.Series(y_train, name='actual').reset_index(drop=True)
+    s_y_train_pred = pd.Series(y_train_pred, name='predicted').reset_index(drop=True)
+    df_train = pd.DataFrame(data=[s_y_train, s_y_train_pred], index=None).T
+    df_train['class'] = 'train'
+
+    s_y_test = pd.Series(y_test, name='actual').reset_index(drop=True)
+    s_y_test_pred = pd.Series(y_test_pred, name='predicted').reset_index(drop=True)
+    df_test = pd.DataFrame(data=[s_y_test, s_y_test_pred], index=None).T
+    df_test['class'] = 'test'
+
+    df_prediction = pd.concat([df_train, df_test], axis=0)
+
+    prediction_col = st.columns((2, 0.2, 3))
+
+    # Display dataframe
+    with prediction_col[0]:
+        st.dataframe(df_prediction, height=320, use_container_width=True)
+
+    # Display scatter plot of actual vs predicted values
+    with prediction_col[2]:
+        scatter = alt.Chart(df_prediction).mark_circle(size=60).encode(
+            x='actual',
+            y='predicted',
+            color='class'
+        )
+        st.altair_chart(scatter, theme='streamlit', use_container_width=True)
+
+# Ask for CSV upload if none is detected
 else:
-    st.warning('No data available. Please upload a CSV file or use the example data to proceed.')
+    st.warning('👈 Upload a CSV file or click *"Load example data"* to get started!')
